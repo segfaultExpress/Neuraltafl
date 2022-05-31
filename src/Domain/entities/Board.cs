@@ -323,12 +323,12 @@ namespace NeuralTaflGame
 
             for (int i = 0; i < boardArray.Count(); i++)
             {
-                validMoves.Add(i + "," + piece.row);
+                validMoves.Add(i + "," + piece.column);
             }
 
             for (int j = 0; j < boardArray[0].Count(); j++)
             {
-                validMoves.Add(piece.column + "," + j);
+                validMoves.Add(piece.row + "," + j);
             }
             return validMoves;
         }
