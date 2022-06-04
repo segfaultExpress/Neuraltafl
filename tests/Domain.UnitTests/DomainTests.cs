@@ -62,6 +62,20 @@ public class DomainTests
     }
 
     [Test]
+    public void CheckPieceNotCapturedOnInit()
+    {
+        // Boards should be initialized without captures
+        Board board = new Board(new int[][]
+        {
+            new int[] { 1, 2, 1 },
+            new int[] { 0, 3, 0 }
+        });
+
+        // 0,1 should not be captured
+        board.getOwnerPieces(1).Count().Should().Be(2);
+    }
+
+    [Test]
     public void CheckPieceMoved()
     {
         Board board = new Board(new int[][]
@@ -210,6 +224,24 @@ public class DomainTests
         
         // There is now only the king for 1
         boardDoubleCap.getOwnerPieces(1).Count().Should().Be(1);
+    }
+
+    [Test]
+    public void ShouldPieceNotCaptureFalsePositive()
+    {
+        Board board = new Board(new int[][]
+        {
+            new int[] { 0, 1, 0 },
+            new int[] { 0, 2, 0 },
+            new int[] { 1, 1, 3 },
+            new int[] { 0, 0, 0 }
+        });
+
+        Piece piece = board.getPiece(2, 0);
+        board.movePiece(piece, 1, 0);
+        
+        // The piece moves up but should not capture
+        board.getOwnerPieces(1).Count().Should().Be(2);
     }
 
     [Test]

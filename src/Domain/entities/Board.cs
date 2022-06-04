@@ -483,7 +483,7 @@ namespace NeuralTaflGame
                 northPiece.capturedSouth = captureDynamic;
                 piece.capturedNorth = captureDynamic;
 
-                if (northPiece.checkCaptured())
+                if (northPiece.checkCaptured(ignoreEW: true) && captureAllowed)
                 {
                     removePiece(northPiece);
                     piece.capturedNorth = false;
@@ -497,7 +497,7 @@ namespace NeuralTaflGame
                 southPiece.capturedNorth = captureDynamic;
                 piece.capturedSouth = captureDynamic;
 
-                if (southPiece.checkCaptured())
+                if (southPiece.checkCaptured(ignoreEW: true) && captureAllowed)
                 {
                     removePiece(southPiece);
                     piece.capturedSouth = false;
@@ -509,7 +509,7 @@ namespace NeuralTaflGame
                 westPiece.capturedEast = captureDynamic;
                 piece.capturedWest = captureDynamic;
 
-                if (westPiece.checkCaptured())
+                if (westPiece.checkCaptured(ignoreNS: true) && captureAllowed)
                 {
                     removePiece(westPiece);
                     piece.capturedWest = false;
@@ -521,7 +521,7 @@ namespace NeuralTaflGame
                 eastPiece.capturedWest = captureDynamic;
                 piece.capturedEast = captureDynamic;
 
-                if (eastPiece.checkCaptured())
+                if (eastPiece.checkCaptured(ignoreNS: true) && captureAllowed)
                 {
                     removePiece(eastPiece);
                     piece.capturedEast = false;
