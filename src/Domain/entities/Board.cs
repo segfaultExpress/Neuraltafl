@@ -320,17 +320,47 @@ namespace NeuralTaflGame
             // TODO: Find actual valid moves
 
             List<String> validMoves = new List<String>();
-
-            for (int i = 0; i < boardArray.Count(); i++)
+            
+            var rowIdx = piece.row + 1;
+            while (isValidMove(piece, rowIdx, piece.column))
             {
-                validMoves.Add(i + "," + piece.column);
+                validMoves.Add(rowIdx + "," + piece.column);
+                rowIdx++;
+            }
+            rowIdx = piece.row - 1;
+            while (isValidMove(piece, rowIdx, piece.column))
+            {
+                validMoves.Add(rowIdx + "," + piece.column);
+                rowIdx--;
             }
 
-            for (int j = 0; j < boardArray[0].Count(); j++)
+
+            var colIdx = piece.column + 1;
+            while (isValidMove(piece, piece.row, colIdx))
             {
-                validMoves.Add(piece.row + "," + j);
+                validMoves.Add(piece.row + "," + colIdx);
+                colIdx++;
             }
+
+            colIdx = piece.column - 1;
+            while (isValidMove(piece, piece.row, colIdx))
+            {
+                validMoves.Add(piece.row + "," + colIdx);
+                colIdx--;
+            }
+
             return validMoves;
+        }
+
+        public Boolean isValidMove(Piece piece, int row, int col)
+        {
+            if (-1 >= row || row >= this.nRows || -1 >= col || col >= this.nCols)
+            {
+                return false;
+            }
+
+            int squareCode = boardArray[row][col];
+            return squareCode == 0 || (piece.isKing && (squareCode == 4 || squareCode == 5));
         }
 
 
@@ -348,6 +378,10 @@ namespace NeuralTaflGame
                 return false;
             }
             
+            if (!isValidMove(piece, row, col))
+            {
+                return false;
+            }
             // TODO: use existing getValidMoves to fix CheckPieceInvalidMove test case.
             // Should be some form of 'if (!validMoves.contains(row + "," + column) return false'
 
