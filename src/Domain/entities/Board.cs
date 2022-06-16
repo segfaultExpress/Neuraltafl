@@ -408,7 +408,7 @@ namespace NeuralTaflGame
             piece = removePiece(piece);
 
             piece.movePiece(row, col);
-            piece = addPiece(piece);
+            piece = addPiece(piece, captureAllowed: true);
 
             playerTurn = (playerTurn == 1) ? 0 : 1;
             return true;
@@ -498,7 +498,7 @@ namespace NeuralTaflGame
         /// <param name="piece">The piece to be added</param>
         /// <param name="captureAllowed">Whether capturing is allowed. Set to false when initializing a board or taking back a move</param>
         /// <returns>The piece that was added</returns>
-        public Piece addPiece(Piece piece, Boolean captureAllowed = true)
+        public Piece addPiece(Piece piece, Boolean captureAllowed)
         {
             int row = piece.row;
             int col = piece.column;
@@ -510,64 +510,67 @@ namespace NeuralTaflGame
             
             // Maybe pieces should handle this? But they don't have peripheral vision. 
             // Considered a Linkedlist approach but realized this isn't 2001 or an interview question
-            if (northPiece != null)
+            if (captureAllowed)
             {
-                // The true boolean zen - That which you capture, also captures you :-)
-                Boolean captureDynamic = (northPiece.owner != piece.owner);
-                northPiece.capturedSouth = captureDynamic;
-                piece.capturedNorth = captureDynamic;
-
-                if (northPiece.checkCaptured())
+                if (northPiece != null)
                 {
-                    removePiece(northPiece);
-                    piece.capturedNorth = false;
-                }
-            }
-            if (southPiece != null)
-            {
-                // BTW - do you notice how sick this can be from this def? A player 3 for example could help P1 capture P2's pieces
-                // (3 PLAYER TAFL)
-                Boolean captureDynamic = (southPiece.owner != piece.owner); 
-                southPiece.capturedNorth = captureDynamic;
-                piece.capturedSouth = captureDynamic;
+                    // The true boolean zen - That which you capture, also captures you :-)
+                    Boolean captureDynamic = (northPiece.owner != piece.owner);
+                    northPiece.capturedSouth = captureDynamic;
+                    piece.capturedNorth = captureDynamic;
 
-                if (southPiece.checkCaptured())
+                    if (northPiece.checkCaptured())
+                    {
+                        removePiece(northPiece);
+                        piece.capturedNorth = false;
+                    }
+                }
+                if (southPiece != null)
                 {
-                    removePiece(southPiece);
-                    piece.capturedSouth = false;
-                }
-            }
-            if (westPiece != null)
-            {
-                Boolean captureDynamic = (westPiece.owner != piece.owner);
-                westPiece.capturedEast = captureDynamic;
-                piece.capturedWest = captureDynamic;
+                    // BTW - do you notice how sick this can be from this def? A player 3 for example could help P1 capture P2's pieces
+                    // (3 PLAYER TAFL)
+                    Boolean captureDynamic = (southPiece.owner != piece.owner); 
+                    southPiece.capturedNorth = captureDynamic;
+                    piece.capturedSouth = captureDynamic;
 
-                if (westPiece.checkCaptured())
+                    if (southPiece.checkCaptured())
+                    {
+                        removePiece(southPiece);
+                        piece.capturedSouth = false;
+                    }
+                }
+                if (westPiece != null)
                 {
-                    removePiece(westPiece);
-                    piece.capturedWest = false;
-                }
-            }
-            if (eastPiece != null)
-            {
-                Boolean captureDynamic = (eastPiece.owner != piece.owner);
-                eastPiece.capturedWest = captureDynamic;
-                piece.capturedEast = captureDynamic;
+                    Boolean captureDynamic = (westPiece.owner != piece.owner);
+                    westPiece.capturedEast = captureDynamic;
+                    piece.capturedWest = captureDynamic;
 
-                if (eastPiece.checkCaptured())
+                    if (westPiece.checkCaptured())
+                    {
+                        removePiece(westPiece);
+                        piece.capturedWest = false;
+                    }
+                }
+                if (eastPiece != null)
                 {
-                    removePiece(eastPiece);
-                    piece.capturedEast = false;
-                }
-            }
+                    Boolean captureDynamic = (eastPiece.owner != piece.owner);
+                    eastPiece.capturedWest = captureDynamic;
+                    piece.capturedEast = captureDynamic;
 
-            // TODO: The hardest part, probably - check for shield wall captures
-            // I'll get you into the right function to check, your job should implement the pseudocode
-            if ((piece.row == 0 || piece.row == 1 || piece.row == nRows - 1 || piece.row == nRows - 2) &&
-                (piece.column == 0 || piece.column == 1 || piece.column == nCols - 1 || piece.column == nCols - 2))
-            {
-                checkShieldWallCapture();
+                    if (eastPiece.checkCaptured())
+                    {
+                        removePiece(eastPiece);
+                        piece.capturedEast = false;
+                    }
+                }
+
+                // TODO: The hardest part, probably - check for shield wall captures
+                // I'll get you into the right function to check, your job should implement the pseudocode
+                if ((piece.row == 0 || piece.row == 1 || piece.row == nRows - 1 || piece.row == nRows - 2) &&
+                    (piece.column == 0 || piece.column == 1 || piece.column == nCols - 1 || piece.column == nCols - 2))
+                {
+                    checkShieldWallCapture();
+                }
             }
 
             pieceList.Add(piece);
