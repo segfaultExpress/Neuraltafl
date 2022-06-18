@@ -21,7 +21,7 @@ namespace NeuralTaflGame
         };
     }
     
-    public class Board
+    public partial class Board
     {
         int[][] boardArray;
         public int nRows {get; set;}
@@ -40,7 +40,7 @@ namespace NeuralTaflGame
         // Piece dictionary is useful for quickly grabbing the existing piece for a row/column (blind spot of simple lists)
         public Dictionary<String, Piece> pieceDict {get;} // TODO (Matt) - Change this to Vector (requires WindowsBase)
 
-        public Board(int[][] initBoardArray = null)
+        public Board(int[][] initBoardArray = null, int playerTurn = 0)
         {
             // See config (TODO? List of jobs for Matt) but the configuration behavior is as follows:
             // 1: Attacker piece
@@ -54,7 +54,7 @@ namespace NeuralTaflGame
 
 
 
-            playerTurn = 0;
+            this.playerTurn = playerTurn;
 
             pieceDict = new Dictionary<string, Piece>();
             pieceList = new List<Piece>();
@@ -248,7 +248,7 @@ namespace NeuralTaflGame
         /// <returns>void</returns>
         public void checkShieldWallCapture()
         {
-            System.Console.WriteLine("Shield Wall Capture Check triggered: Good luck lmao");
+            // System.Console.WriteLine("Shield Wall Capture Check triggered: Good luck lmao");
             /* pseudocode implementation
             row = piece.row
             col = piece.col
@@ -335,7 +335,7 @@ namespace NeuralTaflGame
 
 
         /// <summary>
-        /// The board-level piece move, tracks all peripherals and captures, then handles administrative tasks
+        /// The board-level piece move, tracks all peripherals and captures, then handles administrative tasks [Given a row and column]
         /// </summary>
         /// <param name="piece">The piece object being moved</param>
         /// <param name="row">The new row for the piece</param>
