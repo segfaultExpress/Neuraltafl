@@ -359,7 +359,8 @@ namespace NeuralTaflGame
                 return false;
             }
             //One solution for diagnols: if != a number on the same row or a number on the same column
-            //and != the starting space, isValidMove.
+            //and != the starting space, isValidMove. Figure out if column is contained in row, or row is
+            //contained in column.  If BOTH THE ROW AND COLUMN ARE DIFFERENT FROM THIS ROW, ITS A FALSE MOVE.
             
             int squareCode = boardArray[row][col];
             return squareCode == 0 || (piece.isKing && (squareCode == 4 || squareCode == 5));
