@@ -358,7 +358,9 @@ namespace NeuralTaflGame
             {
                 return false;
             }
-
+            //One solution for diagnols: if != a number on the same row or a number on the same column
+            //and != the starting space, isValidMove.
+            
             int squareCode = boardArray[row][col];
             return squareCode == 0 || (piece.isKing && (squareCode == 4 || squareCode == 5));
         }
