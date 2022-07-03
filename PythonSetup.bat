@@ -1,0 +1,1 @@
+py -m pip install "h5py==2.10.0" --force-reinstall

@@ -46,7 +46,8 @@ namespace NeuralTaflGame
         /// Main function for moving a piece from the piece level's perspective. Used to track
         /// various important things 
         /// </summary>
-        /// 
+        /// <param name="row">The row to move the piece to</param>
+        /// <param name="col">The column to move the piece to</param>
         /// <returns>void</returns>
         public void movePiece(int row = -1, int column = -1)
         {
@@ -60,11 +61,17 @@ namespace NeuralTaflGame
             this.column = column;
         }
 
-        public Boolean checkCaptured()
+        /// <summary>
+        /// Handles capture booleans to raise captured flag 
+        /// </summary>
+        /// <param name="ignoreNS">Boolean for a EW style capture, preventing a false positive</param>
+        /// <param name="ignoreEW">Boolean for a NW style capture, preventing a false positive</param>
+        /// <returns>void</returns>
+        public Boolean checkCaptured(Boolean ignoreNS = false, Boolean ignoreEW = false)
         {
             Boolean isCaptured = isKing ? 
                 (capturedNorth && capturedSouth && capturedEast && capturedWest) : 
-                (capturedNorth && capturedSouth || capturedEast && capturedWest);
+                ((!ignoreNS && capturedNorth && capturedSouth) || (!ignoreEW && capturedEast && capturedWest));
 
             return isCaptured;
         }
