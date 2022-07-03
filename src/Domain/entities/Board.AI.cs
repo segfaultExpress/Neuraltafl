@@ -89,7 +89,20 @@ namespace NeuralTaflGame
                 foreach (String move in moves)
                 {
                     // TODO: Fix with vectors FTLOG
-                    String[] strX2Y2 = move.Split(",");
+                    String[] strX2Y2 = new String[2] {"", ""};
+                    bool charFlag = false;
+                    foreach (char x in move)
+                    {
+                        if (x == ',')
+                        {
+                            charFlag = true;
+                        }
+                        else
+                        {
+                            strX2Y2[(charFlag ? 1 : 0)] += x;
+                        }
+                    }
+
                     int y2;
                     int.TryParse(strX2Y2[1], out y2);
 

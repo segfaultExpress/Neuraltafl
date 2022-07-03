@@ -13,7 +13,21 @@ public abstract class Common
     public static String reverseConvertVector(String vector)
     {
         // Quick dirty way to display the potential moves
-        String[] vectorValues = vector.Split(",");
+        // Don't even ask. All I had to do was try "var x = (1, 2)"
+        String[] vectorValues = new String[2] {"", ""};
+        bool charFlag = false;
+        foreach (char x in vector)
+        {
+            if (x == ',')
+            {
+                charFlag = true;
+            }
+            else
+            {
+                vectorValues[(charFlag ? 1 : 0)] += x;
+            }
+        }
+
         
         int col;
         int.TryParse(vectorValues[1], out col);

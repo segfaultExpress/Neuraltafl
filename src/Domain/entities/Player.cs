@@ -137,7 +137,20 @@ namespace NeuralTaflGame
                 List<String> validMoves = board.getValidMoves(piece);
 
                 int moveId = rnd.Next(validMoves.Count() - 1);
-                String[] vectorValues = validMoves[moveId].Split(",");
+                // Don't even ask. All I had to do was try "var x = (1, 2)"
+                String[] vectorValues = new String[2] {"", ""};
+                bool charFlag = false;
+                foreach (char x in validMoves[moveId])
+                {
+                    if (x == ',')
+                    {
+                        charFlag = true;
+                    }
+                    else
+                    {
+                        vectorValues[(charFlag ? 1 : 0)] += x;
+                    }
+                }
 
                 int row;
                 int.TryParse(vectorValues[0], out row);
