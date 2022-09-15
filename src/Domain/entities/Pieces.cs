@@ -12,6 +12,11 @@ namespace NeuralTaflGame
         public Boolean isKing {get; set;}
         public Boolean isThrone {get; set;}
 
+        public Piece northPiece { get; set; }
+        public Piece southPiece { get; set; }
+        public Piece westPiece { get; set; }
+        public Piece eastPiece { get; set; }
+
         // Main reason for having this be a class: Quick captures without having to manually check the board
         public Boolean capturedNorth {get; set;}
         public Boolean capturedSouth {get; set;}

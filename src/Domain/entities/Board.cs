@@ -40,6 +40,10 @@ namespace NeuralTaflGame
         // Piece dictionary is useful for quickly grabbing the existing piece for a row/column (blind spot of simple lists)
         public Dictionary<String, Piece> pieceDict {get;} // TODO (Matt) - Change this to Vector (requires WindowsBase)
 
+        // Piece List of SortedLists for the purpose of connecting and disconnecting pieces efficiently, while also sorting by key
+        public List<SortedList<String, Piece>> PieceSortedRows { get; }
+        public List<SortedList<String, Piece>> PieceSortedColumns { get;  }
+
         public Board(int[][] initBoardArray = null, int playerTurn = 0)
         {
             // See config (TODO? List of jobs for Matt) but the configuration behavior is as follows:
@@ -58,6 +62,8 @@ namespace NeuralTaflGame
 
             pieceDict = new Dictionary<string, Piece>();
             pieceList = new List<Piece>();
+            PieceSortedRows = new List<SortedList<String, Piece>>(11);
+            PieceSortedColumns = new List<SortedList<String, Piece>>(11);
             
             // TODO: Error handling and logging alerting the user that the board has not been created properly
             boardStateValid = initBoard(initBoardArray);
@@ -541,6 +547,57 @@ namespace NeuralTaflGame
             boardArray[row][col] = getArrayCode(piece);
 
             return piece;
+        }
+
+        //**Needs Doc Tag**
+        public Piece DocumentPiece(Piece piece)
+        {
+            //contains only logic related to adding to the board
+            throw new NotImplementedException();
+        }
+
+        //**Needs Doc Tag**
+        public void DetectNearbyPieces(Piece piece)
+        {
+            int indexOfTargetPiece = PieceSortedRows[piece.row].IndexOfKey(piece.column.ToString());
+            for (int i = indexOfTargetPiece; i < PieceSortedRows.Count; i++)
+            {
+                Piece listPiece = PieceSortedRows[piece.row].Values[i];
+                if (!listPiece.isThrone)
+                {
+                    piece.eastPiece = listPiece;
+                    break;
+                }
+            }
+            for (int i = indexOfTargetPiece; i > -1; i--)
+            {
+                Piece listPiece = PieceSortedRows[piece.row].Values[i];
+                if (!listPiece.isThrone)
+                {
+                    piece.westPiece = listPiece;
+                    break;
+                }
+            }
+            
+            indexOfTargetPiece = PieceSortedColumns[piece.column].IndexOfKey(piece.row.ToString());
+            for (int i = indexOfTargetPiece; i < PieceSortedColumns.Count; i++)
+            {
+                Piece listPiece = PieceSortedColumns[piece.column].Values[i];
+                if (!listPiece.isThrone)
+                {
+                    piece.southPiece = listPiece;
+                    break;
+                }
+            }
+            for (int i = indexOfTargetPiece; i > -1; i--)
+            {
+                Piece listPiece = PieceSortedColumns[piece.column].Values[i];
+                if (!listPiece.isThrone)
+                {
+                    piece.northPiece = listPiece;
+                    break;
+                }
+            }
         }
 
         /// <summary>
