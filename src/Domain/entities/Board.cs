@@ -145,11 +145,20 @@ namespace NeuralTaflGame
                         kingPiece = piece;
                     }
 
-                    addPiece(piece, captureAllowed: false); // A board state with [2, 1, 2] could see a capture we wouldn't immediately want
+                    DocumentPiece(piece);
 
                     colIdx++;
                 }
                 rowIdx++;
+            }
+            
+            for (int i = 0; i < PieceSortedRows.Count; i++)
+            {
+                foreach (var key in PieceSortedRows[i])
+                {
+                    DetectNearbyPieces(key.Value);
+                    DetectNearbyPieces(PieceSortedColumns[key.Value.row][key.Key]);
+                }
             }
 
             return validateBoard();
@@ -543,6 +552,7 @@ namespace NeuralTaflGame
             }
 
             piece = DocumentPiece(piece);
+            DetectNearbyPieces(piece);
 
             return piece;
         }
