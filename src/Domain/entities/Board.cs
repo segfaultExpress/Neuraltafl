@@ -552,6 +552,10 @@ namespace NeuralTaflGame
         //**Needs Doc Tag**
         public Piece DocumentPiece(Piece piece)
         {
+            //I want to separate strictly documenting logic (adding to list, dictionaries, etc.)
+            //so that there isnt any redundant piece detection/capture detection when initializing the board,
+            //since piece detection is reliant on all pieces existing already.
+
             //contains only logic related to adding to the board
             throw new NotImplementedException();
         }
@@ -559,6 +563,11 @@ namespace NeuralTaflGame
         //**Needs Doc Tag**
         public void DetectNearbyPieces(Piece piece)
         {
+            //Checks up, down, left, and right based on column/row
+            
+            //When fully implemented, PieceSortedRows/Columns will only contain real pieces instead of pseudo pieces,
+            //meaning less operations of incrementing per move to find nearby pieces in MOST scenarios
+
             int indexOfTargetPiece = PieceSortedRows[piece.row].IndexOfKey(piece.column.ToString());
             for (int i = indexOfTargetPiece; i < PieceSortedRows.Count; i++)
             {
