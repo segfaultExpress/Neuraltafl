@@ -542,9 +542,7 @@ namespace NeuralTaflGame
                 checkShieldWallCapture();
             }
 
-            pieceList.Add(piece);
-            pieceDict.Add(row + "," + col, piece);
-            boardArray[row][col] = getArrayCode(piece);
+            piece = DocumentPiece(piece);
 
             return piece;
         }
@@ -555,9 +553,15 @@ namespace NeuralTaflGame
             //I want to separate strictly documenting logic (adding to list, dictionaries, etc.)
             //so that there isnt any redundant piece detection/capture detection when initializing the board,
             //since piece detection is reliant on all pieces existing already.
+            int row = piece.row;
+            int col = piece.column;
 
-            //contains only logic related to adding to the board
-            throw new NotImplementedException();
+            pieceList.Add(piece);
+            pieceDict.Add(row + "," + col, piece);
+            PieceSortedRows[row].Add(col.ToString(), piece);
+            PieceSortedColumns[col].Add(row.ToString(), piece);
+            boardArray[row][col] = getArrayCode(piece);
+            return piece;
         }
 
         //**Needs Doc Tag**
