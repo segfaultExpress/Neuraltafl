@@ -333,15 +333,28 @@ namespace NeuralTaflGame
         public List<String> getValidMoves(Piece piece)
         {
             // TODO: Find actual valid moves
+            int rowStart = piece.row;
+            int colStart = piece.column;
 
             List<String> validMoves = new List<String>();
-
-            for (int i = 0; i < boardArray.Count(); i++)
+            
+            //piece detection needs to default to end of board if nothing is in way
+            for (int i = rowStart + 1; i <= rowStart + piece.distanceSouth; i++)
             {
                 validMoves.Add(i + "," + piece.column);
             }
 
-            for (int j = 0; j < boardArray[0].Count(); j++)
+            for (int i = rowStart - 1; i >= rowStart - distanceNorth; i--)
+            {
+                validMoves.Add(i + "," + piece.column);
+            }
+
+            for (int j = colStart + 1; j < colStart + piece.distanceEast; j++)
+            {
+                validMoves.Add(piece.row + "," + j);
+            }
+
+            for (int j = colStart + 1; j < colStart - piece.distanceEast; j--)
             {
                 validMoves.Add(piece.row + "," + j);
             }
@@ -390,7 +403,8 @@ namespace NeuralTaflGame
 
             piece.movePiece(row, col);
             piece = addPiece(piece);
-
+            DetectNearbyPieces(piece);
+            
             playerTurn = (playerTurn == 1) ? 0 : 1;
             return true;
         }
@@ -444,6 +458,12 @@ namespace NeuralTaflGame
             pieceList.Remove(piece);
             pieceDict.Remove(row + "," + col);
 
+            //Would be faster in the long-run if it was only removed based on if its column or row is changing, since a piece
+            //can only move along either column or row
+            PieceSortedColumns.Remove(row.ToString(), piece);
+            PieceSortedRows.Remove(col.ToString(), piece);
+
+
             // TODO: If king and HAS NOT MOVED (may need new bool? new 2dArray code for "unmoved king"? Consider "from position" board states)
             /*
             if (piece.isKing && ???)
@@ -454,21 +474,37 @@ namespace NeuralTaflGame
             boardArray[row][col] = 0;
 
             // All four squares at the old position must have their peripherals updated
-            Piece northPiece = getPiece(row + 1, col);
-            Piece southPiece = getPiece(row - 1, col);
-            Piece westPiece = getPiece(row, col - 1);
-            Piece eastPiece = getPiece(row, col + 1);
+            Piece northAdjacentPiece = getPiece(row + 1, col);
+            Piece southAdjacentPiece = getPiece(row - 1, col);
+            Piece westAdjacentPiece = getPiece(row, col - 1);
+            Piece eastAdjacentPiece = getPiece(row, col + 1);
 
             // all old pieces will now have captured{OTHER} set to false
             // TODO: IF a throne is placed instead, these are set to true(?)
-            if (northPiece != null)
-                northPiece.capturedSouth = false;
-            if (southPiece != null)
-                southPiece.capturedNorth = false;
-            if (westPiece != null)
-                westPiece.capturedEast = false;
-            if (eastPiece != null)
-                eastPiece.capturedWest = false;
+            if (northAdjacentPiece != null)
+                northAdjacentPiece.capturedSouth = false;
+            if (southAdjacentPiece != null)
+                southAdjacentPiece.capturedNorth = false;
+            if (westAdjacentPiece != null)
+                westAdjacentPiece.capturedEast = false;
+            if (eastAdjacentPiece != null)
+                eastAdjacentPiece.capturedWest = false;
+
+            Piece northPiece = piece.northPiece;
+            Piece southPiece = piece.southPiece;
+            Piece westPiece = piece.westPiece;
+            Piece eastPiece = piece.eastPiece;
+            
+            //de-coupling from other pieces on row/col
+            northPiece.southPiece = null;
+            southPiece.northPiece = null;
+            eastPiece.westPiece = null;
+            westPiece.eastPiece = null;
+            
+            piece.northPiece = null;
+            piece.southPiece = null;
+            piece.eastPiece = null;
+            piece.westPiece = null;
 
             return piece;
         }
@@ -552,7 +588,6 @@ namespace NeuralTaflGame
             }
 
             piece = DocumentPiece(piece);
-            DetectNearbyPieces(piece);
 
             return piece;
         }
@@ -579,8 +614,10 @@ namespace NeuralTaflGame
         {
             //Checks up, down, left, and right based on column/row
             
-            //When fully implemented, PieceSortedRows/Columns will only contain real pieces instead of pseudo pieces,
+            //When fully implemented, PieceSortedRows/Columns will only contain real pieces instead of pseudo pieces (such as 0, 4, or 5)
             //meaning less operations of incrementing per move to find nearby pieces in MOST scenarios
+
+            //TODO: Make this more readable damn
 
             int indexOfTargetPiece = PieceSortedRows[piece.row].IndexOfKey(piece.column.ToString());
             for (int i = indexOfTargetPiece; i < PieceSortedRows.Count; i++)
@@ -589,7 +626,13 @@ namespace NeuralTaflGame
                 if (!listPiece.isThrone)
                 {
                     piece.eastPiece = listPiece;
+                    listPiece.westPiece = piece;
+                    piece.distanceEast = piece.eastPiece.column - piece.column - 2;
                     break;
+                }
+                if (piece.eastPiece == null && !listPiece.isThrone)
+                {
+                    piece.distanceEast = boardArray[0].Length - 2;
                 }
             }
             for (int i = indexOfTargetPiece; i > -1; i--)
@@ -598,7 +641,13 @@ namespace NeuralTaflGame
                 if (!listPiece.isThrone)
                 {
                     piece.westPiece = listPiece;
+                    listPiece.eastPiece = piece;
+                    piece.distanceWest = piece.column - piece.westPiece.column - 2;
                     break;
+                }
+                if (piece.westPiece == null && !listPiece.isThrone)
+                { 
+                    piece.distanceWest = piece.column - 1;
                 }
             }
             
@@ -609,7 +658,13 @@ namespace NeuralTaflGame
                 if (!listPiece.isThrone)
                 {
                     piece.southPiece = listPiece;
+                    piece.distanceSouth = piece.southPiece.row - piece.row - 2;
+                    listPiece.northPiece = piece;
                     break;
+                }
+                if (piece.southPiece == null && !listPiece.isThrone)
+                {
+                    piece.distanceSouth = piece.row - 1;
                 }
             }
             for (int i = indexOfTargetPiece; i > -1; i--)
@@ -618,7 +673,13 @@ namespace NeuralTaflGame
                 if (!listPiece.isThrone)
                 {
                     piece.northPiece = listPiece;
+                    piece.distanceSouth = piece.row - piece.southPiece.row - 2;
+                    listPiece.southPiece = piece;
                     break;
+                }
+                if (piece.northPiece == null && !listPiece.isThrone)
+                {
+                    piece.distanceNorth = boardArray.Length - 2;
                 }
             }
         }

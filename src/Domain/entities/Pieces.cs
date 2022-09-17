@@ -17,6 +17,11 @@ namespace NeuralTaflGame
         public Piece westPiece { get; set; }
         public Piece eastPiece { get; set; }
 
+        public int distanceWest = 0;
+        public int distanceEast = 0;
+        public int distanceNorth = 0;
+        public int distanceSouth = 0;
+
         // Main reason for having this be a class: Quick captures without having to manually check the board
         public Boolean capturedNorth {get; set;}
         public Boolean capturedSouth {get; set;}
