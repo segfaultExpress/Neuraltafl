@@ -20,29 +20,58 @@ namespace NeuralTaflGame
             new int[] { 4, 0, 0, 1, 1, 1, 1, 1, 0, 0, 4 }
         };
     }
-    
+
     public partial class Board
     {
         int[][] boardArray;
-        public int nRows {get; set;}
-        public int nCols {get; set;}
+        public int nRows { get; set; }
+        public int nCols { get; set; }
 
 
-        public int playerTurn {get; set;}
+        public int playerTurn { get; set; }
 
-        public Piece kingPiece {get; set;}
+        public Piece kingPiece { get; set; }
 
-        public Boolean boardStateValid {get; set;}
+        //public Piece thronePiece { get; set; }
+
+        public Boolean boardStateValid { get; set; }
 
         // Piece list stores an iterable list of pieces
-        public List<Piece> pieceList {get;}
+        public List<Piece> pieceList { get; }
 
         // Piece dictionary is useful for quickly grabbing the existing piece for a row/column (blind spot of simple lists)
-        public Dictionary<String, Piece> pieceDict {get;} // TODO (Matt) - Change this to Vector (requires WindowsBase)
+        public Dictionary<String, Piece> pieceDict { get; } // TODO (Matt) - Change this to Vector (requires WindowsBase)
 
         // Piece List of SortedLists for the purpose of connecting and disconnecting pieces efficiently, while also sorting by key
-        public List<SortedList<String, Piece>> PieceSortedRows { get; }
-        public List<SortedList<String, Piece>> PieceSortedColumns { get;  }
+        public List<SortedList<String, Piece>> PieceSortedRows { get; } = new List<SortedList<String, Piece>>()
+        {
+            new SortedList<String, Piece>(),
+            new SortedList<String, Piece>(),
+            new SortedList<String, Piece>(),
+            new SortedList<String, Piece>(),
+            new SortedList<String, Piece>(),
+            new SortedList<String, Piece>(),
+            new SortedList<String, Piece>(),
+            new SortedList<String, Piece>(),
+            new SortedList<String, Piece>(),
+            new SortedList<String, Piece>(),
+            new SortedList<String, Piece>(),
+        };
+
+        public List<SortedList<String, Piece>> PieceSortedColumns { get; } = new List<SortedList<String, Piece>>()
+        {
+            new SortedList<String, Piece>(),
+            new SortedList<String, Piece>(),
+            new SortedList<String, Piece>(),
+            new SortedList<String, Piece>(),
+            new SortedList<String, Piece>(),
+            new SortedList<String, Piece>(),
+            new SortedList<String, Piece>(),
+            new SortedList<String, Piece>(),
+            new SortedList<String, Piece>(),
+            new SortedList<String, Piece>(),
+            new SortedList<String, Piece>(),
+        };
 
         public Board(int[][] initBoardArray = null, int playerTurn = 0)
         {
@@ -62,8 +91,6 @@ namespace NeuralTaflGame
 
             pieceDict = new Dictionary<string, Piece>();
             pieceList = new List<Piece>();
-            PieceSortedRows = new List<SortedList<String, Piece>>(11);
-            PieceSortedColumns = new List<SortedList<String, Piece>>(11);
             
             // TODO: Error handling and logging alerting the user that the board has not been created properly
             boardStateValid = initBoard(initBoardArray);
@@ -114,6 +141,7 @@ namespace NeuralTaflGame
 
                     int owner = 1;
                     Boolean isKing = false;
+                    //Boolean isThrone = false;
                     switch(boardValue) 
                     {
                     case 1:
@@ -144,6 +172,10 @@ namespace NeuralTaflGame
                         // track the king piece for board validation and O(1) win conditions
                         kingPiece = piece;
                     }
+                    //if (isThrone)
+                    //{
+                    //    thronePiece = piece;
+                    //}
 
                     DocumentPiece(piece);
 
@@ -157,7 +189,6 @@ namespace NeuralTaflGame
                 foreach (var key in PieceSortedRows[i])
                 {
                     DetectNearbyPieces(key.Value);
-                    DetectNearbyPieces(PieceSortedColumns[key.Value.row][key.Key]);
                 }
             }
 
@@ -344,7 +375,7 @@ namespace NeuralTaflGame
                 validMoves.Add(i + "," + piece.column);
             }
 
-            for (int i = rowStart - 1; i >= rowStart - distanceNorth; i--)
+            for (int i = rowStart - 1; i >= rowStart - piece.distanceNorth; i--)
             {
                 validMoves.Add(i + "," + piece.column);
             }
@@ -358,6 +389,7 @@ namespace NeuralTaflGame
             {
                 validMoves.Add(piece.row + "," + j);
             }
+            //validMoves.Remove(thronePiece.row + "," + thronePiece.column);
             return validMoves;
         }
 
@@ -371,11 +403,14 @@ namespace NeuralTaflGame
         /// <returns>Successfulness of move</returns>
         public Boolean movePiece(Piece piece, int row, int col)
         {
-            if (0 > row || row >= nRows || 0 > col || col >= nCols)
+            List<string> validMoves = getValidMoves(piece);
+            if (!validMoves.Contains(row + "," + col))
             {
                 return false;
             }
             
+            //TODO: Track thronePiece
+
             // TODO: use existing getValidMoves to fix CheckPieceInvalidMove test case.
             // Should be some form of 'if (!validMoves.contains(row + "," + column) return false'
 
@@ -460,8 +495,8 @@ namespace NeuralTaflGame
 
             //Would be faster in the long-run if it was only removed based on if its column or row is changing, since a piece
             //can only move along either column or row
-            PieceSortedColumns.Remove(row.ToString(), piece);
-            PieceSortedRows.Remove(col.ToString(), piece);
+            PieceSortedColumns[col].Remove(row.ToString());
+            PieceSortedRows[row].Remove(col.ToString());
 
 
             // TODO: If king and HAS NOT MOVED (may need new bool? new 2dArray code for "unmoved king"? Consider "from position" board states)
@@ -618,11 +653,20 @@ namespace NeuralTaflGame
             //meaning less operations of incrementing per move to find nearby pieces in MOST scenarios
 
             //TODO: Make this more readable damn
+            
 
             int indexOfTargetPiece = PieceSortedRows[piece.row].IndexOfKey(piece.column.ToString());
-            for (int i = indexOfTargetPiece; i < PieceSortedRows.Count; i++)
+            for (int i = indexOfTargetPiece; i < PieceSortedRows[piece.row].Count; i++)
             {
+                Piece lastPiece = PieceSortedRows[piece.row].Last().Value;
                 Piece listPiece = PieceSortedRows[piece.row].Values[i];
+
+                //if its piece, skip
+                if (listPiece == piece)
+                {
+                    continue;
+                }
+                //if its a non-throne piece, its the east piece
                 if (!listPiece.isThrone)
                 {
                     piece.eastPiece = listPiece;
@@ -630,14 +674,27 @@ namespace NeuralTaflGame
                     piece.distanceEast = piece.eastPiece.column - piece.column - 2;
                     break;
                 }
-                if (piece.eastPiece == null && !listPiece.isThrone)
+                //if the next piece is a throne AND the last piece in the sequence, east is null and it goes till it hits wall
+                if (listPiece.isThrone && listPiece == lastPiece)
                 {
                     piece.distanceEast = boardArray[0].Length - 2;
+                    break;
                 }
+                //if the piece is just a throne (and isnt last in the sequence) skip
+                if (listPiece.isThrone)
+                {
+                    continue;
+                }
+                
             }
             for (int i = indexOfTargetPiece; i > -1; i--)
             {
+                Piece firstPiece = PieceSortedRows[piece.row].First().Value;
                 Piece listPiece = PieceSortedRows[piece.row].Values[i];
+                if (listPiece == piece)
+                {
+                    continue;
+                }
                 if (!listPiece.isThrone)
                 {
                     piece.westPiece = listPiece;
@@ -645,16 +702,26 @@ namespace NeuralTaflGame
                     piece.distanceWest = piece.column - piece.westPiece.column - 2;
                     break;
                 }
-                if (piece.westPiece == null && !listPiece.isThrone)
-                { 
+                if (listPiece.isThrone && listPiece == firstPiece)
+                {
                     piece.distanceWest = piece.column - 1;
+                }
+                if (listPiece.isThrone)
+                {
+                    continue;
                 }
             }
             
             indexOfTargetPiece = PieceSortedColumns[piece.column].IndexOfKey(piece.row.ToString());
-            for (int i = indexOfTargetPiece; i < PieceSortedColumns.Count; i++)
+            for (int i = indexOfTargetPiece; i < PieceSortedColumns[piece.column].Count; i++)
             {
                 Piece listPiece = PieceSortedColumns[piece.column].Values[i];
+                Piece lastPiece = PieceSortedRows[piece.row].Last().Value;
+                
+                if (listPiece == piece)
+                {
+                    continue;
+                }
                 if (!listPiece.isThrone)
                 {
                     piece.southPiece = listPiece;
@@ -662,24 +729,38 @@ namespace NeuralTaflGame
                     listPiece.northPiece = piece;
                     break;
                 }
-                if (piece.southPiece == null && !listPiece.isThrone)
+                if (listPiece.isThrone && listPiece == lastPiece)
                 {
                     piece.distanceSouth = piece.row - 1;
+                }
+                if (listPiece.isThrone)
+                {
+                    continue;
                 }
             }
             for (int i = indexOfTargetPiece; i > -1; i--)
             {
+                Piece firstPiece = PieceSortedRows[piece.row].First().Value;
                 Piece listPiece = PieceSortedColumns[piece.column].Values[i];
+                
+                if (listPiece == piece)
+                {
+                    continue;
+                }
                 if (!listPiece.isThrone)
                 {
                     piece.northPiece = listPiece;
-                    piece.distanceSouth = piece.row - piece.southPiece.row - 2;
+                    piece.distanceNorth = piece.row - piece.northPiece.row - 2;
                     listPiece.southPiece = piece;
                     break;
                 }
-                if (piece.northPiece == null && !listPiece.isThrone)
+                if (listPiece.isThrone && listPiece == firstPiece)
                 {
                     piece.distanceNorth = boardArray.Length - 2;
+                }
+                if (listPiece.isThrone)
+                {
+                    continue;
                 }
             }
         }
