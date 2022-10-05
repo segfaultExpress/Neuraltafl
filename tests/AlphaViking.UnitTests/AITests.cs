@@ -13,6 +13,6 @@ public class AITests
         Board defaultBoard = new Board();
 
         // Test that all structs are created and correct
-        defaultBoard.pieceList.Count().Should().Be(13 + 24 + 4);
+        defaultBoard.PieceList.Count().Should().Be(13 + 24 + 4);
     }
 }

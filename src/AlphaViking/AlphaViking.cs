@@ -187,7 +187,7 @@ namespace NeuralTaflAi
             List<NNData> trainData = new List<NNData>();
 
             int episodeStep = 0;
-            while (-1 == board.checkForWinner())
+            while (-1 == board.CheckForWinner())
             {
                 episodeStep++;
 
@@ -206,7 +206,7 @@ namespace NeuralTaflAi
             foreach (NNData trainItem in trainData)
             {
                 // Propegate back up the tree
-                trainItem.v = (board.checkForWinner() == 0 ? 1 : -1);
+                trainItem.v = (board.CheckForWinner() == 0 ? 1 : -1);
             }
 
             return trainData;
@@ -246,14 +246,14 @@ namespace NeuralTaflAi
         {
             Board board = new Board();
 
-            while (-1 == board.checkForWinner())
+            while (-1 == board.CheckForWinner())
             {
                 int actionId = pickMove(board);
 
                 board.movePiece(actionId);
             }
 
-            return board.checkForWinner();
+            return board.CheckForWinner();
         }
     }
 }

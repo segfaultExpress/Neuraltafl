@@ -80,7 +80,7 @@ namespace NeuralTaflAi
                 node.activate();
 
                 // Check for a winner post-move
-                int winner = node.boardState.checkForWinner();
+                int winner = node.boardState.CheckForWinner();
                 int value = 0;
                 if (winner == -1)
                 {
@@ -90,7 +90,7 @@ namespace NeuralTaflAi
                 else
                 {
                     // Can't really "Lose" on your turn in tafl, but generally speaking check for win or loss
-                    value = (winner == node.boardState.playerTurn ? 1 : -1);
+                    value = (winner == node.boardState.PlayerTurn ? 1 : -1);
                 }
 
                 // BACKUP: We have expanded a node, it's time to tell the tree what happened
@@ -98,7 +98,7 @@ namespace NeuralTaflAi
                 {
                     // value is 1 if the winner is 1, -1 if 2
                     // Therefore, when adding valueSum, if it's the same player add value, else subtract
-                    Boolean samePlayerPerspective = backNode.boardState.playerTurn == node.boardState.playerTurn;
+                    Boolean samePlayerPerspective = backNode.boardState.PlayerTurn == node.boardState.PlayerTurn;
                     backNode.valueSum += (samePlayerPerspective ? value : -1*value);
                     backNode.visits++;
                 }

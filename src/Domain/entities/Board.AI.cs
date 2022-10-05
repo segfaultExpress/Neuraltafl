@@ -14,12 +14,12 @@ namespace NeuralTaflGame
         {
             // For more documentation of how this "actionId" works, check out the function getValidMove1DArray
             // actionId is previously generated using this:
-            // x1 + y1*this.nCols + x2*this.nRows^2 + y2*this.nCols^3
+            // x1 + y1*this.NCols + x2*this.NRows^2 + y2*this.NCols^3
 
-            int nCols3 = (int) Math.Pow(this.nCols, 3);
-            int nRows2 = (int) Math.Pow(this.nRows, 2);
-            int nCols1 = this.nCols;  // (int) Math.Pow(this.nCols, 1);
-            int nRows0 = 1;           // (int) Math.Pow(this.nRows, 0);
+            int nCols3 = (int) Math.Pow(this.NCols, 3);
+            int nRows2 = (int) Math.Pow(this.NRows, 2);
+            int nCols1 = this.NCols;  // (int) Math.Pow(this.NCols, 1);
+            int nRows0 = 1;           // (int) Math.Pow(this.NRows, 0);
 
             if (actionId == 187)
             {
@@ -37,14 +37,14 @@ namespace NeuralTaflGame
 
             int x1 = actionId / (nRows0);
 
-            Piece piece = getPiece(x1, y1);
+            Piece piece = GetPiece(x1, y1);
             if (piece == null)
             {
                 return false;
             }
             
 
-            return movePiece(piece, x2, y2);
+            return MovePiece(piece, x2, y2);
         }
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace NeuralTaflGame
         /// <returns>SHA-512 hash for the current board state</returns>
         public int createBoardHash()
         {
-            return ((IStructuralEquatable)this.boardArray).GetHashCode(EqualityComparer<int>.Default);
+            return ((IStructuralEquatable)this.BoardArray).GetHashCode(EqualityComparer<int>.Default);
         }
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace NeuralTaflGame
         /// <returns>An int corresponding to the total amount of actions possible</returns>
         public int getActionSize()
         {
-            return (int) (Math.Pow(this.nCols, 2) * Math.Pow(this.nRows, 2));
+            return (int) (Math.Pow(this.NCols, 2) * Math.Pow(this.NRows, 2));
         }
 
         /// <summary>
@@ -75,13 +75,13 @@ namespace NeuralTaflGame
         public int[] getValidMove1DArray()
         {
             // Create a massive array for no* reason
-            int[] moveArray = new int[this.nRows * this.nCols * this.nRows * this.nCols];
+            int[] moveArray = new int[this.NRows * this.NCols * this.NRows * this.NCols];
 
-            List<Piece> currentPieces = getOwnerPieces(this.playerTurn);
+            List<Piece> currentPieces = GetOwnerPieces(this.PlayerTurn);
 
             foreach (Piece piece in currentPieces)
             {
-                List<String> moves = getValidMoves(piece);
+                List<String> moves = GetValidMoves(piece);
                 
                 int x1 = piece.row;
                 int y1 = piece.column;
@@ -118,15 +118,15 @@ namespace NeuralTaflGame
                     // to EVERY position, so it squares from here for x2, then squares again for y2. x1=1,y1=1->x2=2,y2=2 
                     // becomes (1 + 11*1 + 121*2 + 1331*2 - 1) So, is array value 2915 set to 1? No of course not, pieces don't
                     // move diagonally. But we need to store this somehow. (And moveArray[2794] = 1 btw, TODO: Figure out why)
-                    int nRows2 = (int) Math.Pow(this.nRows, 2);
-                    int nCols3 = (int) Math.Pow(this.nCols, 3);
+                    int nRows2 = (int) Math.Pow(this.NRows, 2);
+                    int nCols3 = (int) Math.Pow(this.NCols, 3);
 
-                    if (x1 + y1*this.nCols + x2*nRows2 + y2*nCols3 == 187)
+                    if (x1 + y1*this.NCols + x2*nRows2 + y2*nCols3 == 187)
                     {
                         Console.WriteLine("whoopsie");
                     }
 
-                    moveArray[x1 + y1*this.nCols + x2*nRows2 + y2*nCols3] = 1;
+                    moveArray[x1 + y1*this.NCols + x2*nRows2 + y2*nCols3] = 1;
                 }
             }
 
@@ -141,13 +141,13 @@ namespace NeuralTaflGame
         public int[] getBoard1DArray()
         {
             // Voodoo translation from jagged 2D array to 1d array
-            return this.boardArray.SelectMany(a => a).ToArray();
+            return this.BoardArray.SelectMany(a => a).ToArray();
         }
 
 
         public Board clone()
         {
-            return new Board(boardArray, playerTurn);
+            return new Board(BoardArray, PlayerTurn);
         }
     }
 }

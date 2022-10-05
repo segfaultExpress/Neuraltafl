@@ -32,7 +32,7 @@ namespace NeuralTaflGame
         /// <returns>The list of pieces owned by the player</returns>
         public List<Piece> getPieces()
         {
-            return board.getOwnerPieces(id);
+            return board.GetOwnerPieces(id);
         }
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace NeuralTaflGame
             Boolean validTurn = false;
             while (!validTurn)
             {
-                Console.WriteLine(String.Format("Player {0}'s turn, please select a piece:", board.playerTurn + 1));
+                Console.WriteLine(String.Format("Player {0}'s turn, please select a piece:", board.PlayerTurn + 1));
                 
                 String turn = Console.ReadLine();
 
@@ -72,7 +72,7 @@ namespace NeuralTaflGame
                     continue;
                 }
 
-                List<String> validMoves = board.selectPiece(turnArray[0], turnArray[1]);
+                List<String> validMoves = board.SelectPiece(turnArray[0], turnArray[1]);
 
                 if (validMoves == null)
                 {
@@ -103,8 +103,8 @@ namespace NeuralTaflGame
                     continue;
                 }
 
-                Piece piece = board.getPiece(turnArray[0], turnArray[1]);
-                Boolean moveSuccessful = board.movePiece(piece, moveToArray[0], moveToArray[1]);
+                Piece piece = board.GetPiece(turnArray[0], turnArray[1]);
+                Boolean moveSuccessful = board.MovePiece(piece, moveToArray[0], moveToArray[1]);
 
                 if (!moveSuccessful)
                 {
@@ -134,7 +134,7 @@ namespace NeuralTaflGame
                 Piece piece = pieces[pieceId];
 
                 // Pick a move
-                List<String> validMoves = board.getValidMoves(piece);
+                List<String> validMoves = board.GetValidMoves(piece);
 
                 int moveId = rnd.Next(validMoves.Count() - 1);
                 // Don't even ask. All I had to do was try "var x = (1, 2)"
@@ -163,7 +163,7 @@ namespace NeuralTaflGame
                 String pieceTo = Common.reverseConvertVector(validMoves[moveId]);
                 Console.WriteLine(String.Format("AI: {0}->{1}", pieceFrom, pieceTo));
 
-                turnValid = board.movePiece(piece, row, col);
+                turnValid = board.MovePiece(piece, row, col);
             }
         }
     }

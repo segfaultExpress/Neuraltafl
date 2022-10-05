@@ -132,7 +132,7 @@ namespace NeuralTaflAi
                 Board newBoard = boardState.clone();
                 
                 /*
-                if (!newBoard.movePiece(actionId)) // Move piece, it SHOULD succeed if "validMoves" is working properly
+                if (!newBoard.MovePiece(actionId)) // Move piece, it SHOULD succeed if "validMoves" is working properly
                 {
                     Console.WriteLine("Error: Piece has valid move id: {0} but failed!", actionId);
                     continue;

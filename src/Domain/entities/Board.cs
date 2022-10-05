@@ -23,22 +23,22 @@ namespace NeuralTaflGame
     
     public partial class Board
     {
-        int[][] boardArray;
-        public int nRows {get; set;}
-        public int nCols {get; set;}
+        int[][] BoardArray;
+        public int NRows {get; set;}
+        public int NCols {get; set;}
 
 
-        public int playerTurn {get; set;}
+        public int PlayerTurn {get; set;}
 
-        public Piece kingPiece {get; set;}
+        public Piece KingPiece {get; set;}
 
-        public Boolean boardStateValid {get; set;}
+        public Boolean BoardStateValid {get; set;}
 
         // Piece list stores an iterable list of pieces
-        public List<Piece> pieceList {get;}
+        public List<Piece> PieceList {get;}
 
         // Piece dictionary is useful for quickly grabbing the existing piece for a row/column (blind spot of simple lists)
-        public Dictionary<String, Piece> pieceDict {get;} // TODO (Matt) - Change this to Vector (requires WindowsBase)
+        public Dictionary<String, Piece> PieceDict {get;} // TODO (Matt) - Change this to Vector (requires WindowsBase)
 
         public Board(int[][] initBoardArray = null, int playerTurn = 0)
         {
@@ -54,13 +54,13 @@ namespace NeuralTaflGame
 
 
 
-            this.playerTurn = playerTurn;
+            this.PlayerTurn = playerTurn;
 
-            pieceDict = new Dictionary<string, Piece>();
-            pieceList = new List<Piece>();
+            PieceDict = new Dictionary<string, Piece>();
+            PieceList = new List<Piece>();
             
             // TODO: Error handling and logging alerting the user that the board has not been created properly
-            boardStateValid = initBoard(initBoardArray);
+            BoardStateValid = InitBoard(initBoardArray);
         }
 
 
@@ -69,26 +69,26 @@ namespace NeuralTaflGame
         /// </summary>
         /// <param name="boardArray">The desired board state in a 2darray format</param>
         /// <returns>Validation of an initialized and valid board</returns>
-        public Boolean initBoard(int[][] initBoardArray)
+        public Boolean InitBoard(int[][] initBoardArray)
         {
-            pieceDict.Clear();
-            pieceList.Clear();
-            kingPiece = null;
+            PieceDict.Clear();
+            PieceList.Clear();
+            KingPiece = null;
 
             // Before we place anything, let's create an empty board that we can populate from the above array
             // The two SHOULD be identical afterwards (tested in unit tests)
-            this.nRows = initBoardArray.Count();
+            this.NRows = initBoardArray.Count();
             // Check later that anything other than this is invalid
-            this.nCols = 1;
+            this.NCols = 1;
             if (initBoardArray.Count() > 0)
-                this.nCols = initBoardArray[0].Count();
+                this.NCols = initBoardArray[0].Count();
 
-            this.boardArray = new int[nRows][];
-            for (int i = 0; i < nRows; i++)
+            this.BoardArray = new int[NRows][];
+            for (int i = 0; i < NRows; i++)
             {
-                for (int j = 0; j < nCols; j++)
+                for (int j = 0; j < NCols; j++)
                 {
-                    this.boardArray[i] = new int[nCols];
+                    this.BoardArray[i] = new int[NCols];
                 }
             }
 
@@ -136,17 +136,17 @@ namespace NeuralTaflGame
                     if (isKing)
                     {
                         // track the king piece for board validation and O(1) win conditions
-                        kingPiece = piece;
+                        KingPiece = piece;
                     }
 
-                    addPiece(piece, captureAllowed: false); // A board state with [2, 1, 2] could see a capture we wouldn't immediately want
+                    AddPiece(piece, captureAllowed: false); // A board state with [2, 1, 2] could see a capture we wouldn't immediately want
 
                     colIdx++;
                 }
                 rowIdx++;
             }
 
-            return validateBoard();
+            return ValidateBoard();
         }
 
         /// <summary>
@@ -155,15 +155,15 @@ namespace NeuralTaflGame
         /// <param name="row">The row for the piece</param>
         /// <param name="col">The column for the piece</param>
         /// <returns>A list of valid moves for the selected piece, or null if the piece is unselectable (wrong owner, nonexistent)</returns>
-        public Boolean validateBoard()
+        public Boolean ValidateBoard()
         {
-            if (boardArray.Count() < 1)
+            if (BoardArray.Count() < 1)
             {
                 return false;
             }
 
-            // There should be a kingPiece (future - kingpieces??)
-            if (kingPiece == null)
+            // There should be a KingPiece (future - kingpieces??)
+            if (KingPiece == null)
             {
                 return false;
             }
@@ -177,19 +177,19 @@ namespace NeuralTaflGame
         /// Defender: King in corner, less attackers than can capture the king, TODO: Fort victory
         /// </summary>
         /// <returns>-1 if no winner, else the id of the player that won</returns>
-        public int checkForWinner()
+        public int CheckForWinner()
         {
             // attacker wins
-            if (!pieceList.Contains(kingPiece))
+            if (!PieceList.Contains(KingPiece))
             {
                 // has been removed, can win
                 return 0;
             }
 
             // defense wins
-            Boolean kingInCorner = (kingPiece.row == 0 || kingPiece.row == nRows - 1) && 
-                                   (kingPiece.column == 0 || kingPiece.column == nCols - 1);
-            if (kingInCorner || getOwnerPieces(0).Count() < 4)
+            Boolean kingInCorner = (KingPiece.row == 0 || KingPiece.row == NRows - 1) && 
+                                   (KingPiece.column == 0 || KingPiece.column == NCols - 1);
+            if (kingInCorner || GetOwnerPieces(0).Count() < 4)
             {
                 return 1;
             }
@@ -197,36 +197,36 @@ namespace NeuralTaflGame
             // TODO: Fort victory
 
             /* Pseudocode impl.
-            Boolean kingOnSide = (kingPiece.row == 0 || kingPiece.row == nRows - 1) || 
-                                 (kingPiece.column == 0 || kingPiece.column == nCols - 1);
+            Boolean kingOnSide = (KingPiece.row == 0 || KingPiece.row == NRows - 1) || 
+                                 (KingPiece.column == 0 || KingPiece.column == NCols - 1);
         
             if !kingOnSide
                 return // save computation
 
             // check first above/below forts
-            Boolean kingCanMove = getPiece(side of king) == null || getPiece(other side of king) == null
+            Boolean kingCanMove = GetPiece(side of king) == null || GetPiece(other side of king) == null
 
             Boolean kingProtected = true
-            kingProtected = kingProtected && getPiece(wallRow, kingPiece.column) != null // switch boolean methodology
+            kingProtected = kingProtected && GetPiece(wallRow, KingPiece.column) != null // switch boolean methodology
             
-            aboveWallRow = kingRow == 0 ? 1 : nRows - 2 // CRITICAL to understand - we can check both top and bottom at the same time with this var
+            aboveWallRow = kingRow == 0 ? 1 : NRows - 2 // CRITICAL to understand - we can check both top and bottom at the same time with this var
 
-            leftWallCol = kingPiece.column - 1
+            leftWallCol = KingPiece.column - 1
             wallPiece = null
             while (wallPiece == null and leftWallCol > 0)
-                wallPiece = getPiece(wallRow, leftWallCol)
-                aboveWallPiece = getPiece(aboveWallRow, leftWallCol)
+                wallPiece = GetPiece(wallRow, leftWallCol)
+                aboveWallPiece = GetPiece(aboveWallRow, leftWallCol)
 
                 if wallPiece == null and aboveWallPiece == null:
                     kingProtected = false // the fort is incomplete
 
                 leftWallCol -= 1;
 
-            rightWallCol = kingPiece.column + 1
+            rightWallCol = KingPiece.column + 1
             wallPiece = null
-            while (wallPiece == null and rightWallCol < nCols)
-                wallPiece = getPiece(wallRow, rightWallCol)
-                aboveWallPiece = getPiece(aboveWallRow, rightWallCol)
+            while (wallPiece == null and rightWallCol < NCols)
+                wallPiece = GetPiece(wallRow, rightWallCol)
+                aboveWallPiece = GetPiece(aboveWallRow, rightWallCol)
 
                 if wallPiece == null and aboveWallPiece == null:
                     kingProtected = false // the fort is incomplete
@@ -246,14 +246,14 @@ namespace NeuralTaflGame
         /// </summary>
         /// <param name="???">Whatever you need. Might I suggest the piece itself, so that you can just check around that piece</param>
         /// <returns>void</returns>
-        public void checkShieldWallCapture()
+        public void CheckShieldWallCapture()
         {
             // System.Console.WriteLine("Shield Wall Capture Check triggered: Good luck lmao");
             /* pseudocode implementation
             row = piece.row
             col = piece.col
             
-            wallPiece = getPiece(wallUnderOrNextToPiece) // need fancy math to make sure that you're checking the wall piece, see below
+            wallPiece = GetPiece(wallUnderOrNextToPiece) // need fancy math to make sure that you're checking the wall piece, see below
             // Find X in these cases (. indicates the "1" piece was just moved from that position)
             // [0 0 0 0 0 0]
             // [0 0 1 1 0 0]
@@ -264,12 +264,12 @@ namespace NeuralTaflGame
             // [0 1 2 X 2 1]
 
             // Check this recursive idea out, we can pair program this
-            isValidShieldWallCapture = _checkShieldWallCapture(wallPiece, getPiece(wallLeft)) &&
-                                       _checkShieldWallCapture(wallPiece, getPiece(wallRight))
+            isValidShieldWallCapture = _checkShieldWallCapture(wallPiece, GetPiece(wallLeft)) &&
+                                       _checkShieldWallCapture(wallPiece, GetPiece(wallRight))
 
             if isValidShieldWallCapture
                 foreach wallpiece
-                    removePiece(wallPiece)
+                    RemovePiece(wallPiece)
 
             public Boolean _checkShieldWallCapture(lastPiece, piece)
                 // These are called "base cases" of recursion, they stop the otherwise unending calls of itself
@@ -283,11 +283,11 @@ namespace NeuralTaflGame
                 validCapture = piece.capturedNorth || piece.capturedSouth || piece.capturedWest || piece.capturedEast;
 
                 // Use a cool trick of passing the last piece to make sure our recursion doesn't backtrack
-                leftPiece = getPiece(left)
+                leftPiece = GetPiece(left)
                 if (leftPiece != lastPiece)
                     validCapture = validCapture && _checkShieldWallCapture(piece, leftPiece)
 
-                rightPiece = getPiece(right)
+                rightPiece = GetPiece(right)
                 if (rightPiece != lastPiece)
                     validCapture = validCapture && _checkShieldWallCapture(piece, rightPiece)
 
@@ -301,13 +301,13 @@ namespace NeuralTaflGame
         /// <param name="row">The row for the piece</param>
         /// <param name="col">The column for the piece</param>
         /// <returns>A list of valid moves for the selected piece, or null if the piece is unselectable (wrong owner, nonexistent)</returns>
-        public List<String> selectPiece(int row, int col)
+        public List<String> SelectPiece(int row, int col)
         {
-            Piece piece = getPiece(row, col);
+            Piece piece = GetPiece(row, col);
             if (piece == null) // or other problems
                 return null;
             
-            return getValidMoves(piece);
+            return GetValidMoves(piece);
         }
 
         /// <summary>
@@ -315,18 +315,18 @@ namespace NeuralTaflGame
         /// </summary>
         /// <param name="piece">The piece to get the valid moves for</param>
         /// <returns>A list of valid moves for the selected piece</returns>
-        public List<String> getValidMoves(Piece piece)
+        public List<String> GetValidMoves(Piece piece)
         {
             // TODO: Find actual valid moves
 
             List<String> validMoves = new List<String>();
 
-            for (int i = 0; i < boardArray.Count(); i++)
+            for (int i = 0; i < BoardArray.Count(); i++)
             {
                 validMoves.Add(i + "," + piece.column);
             }
 
-            for (int j = 0; j < boardArray[0].Count(); j++)
+            for (int j = 0; j < BoardArray[0].Count(); j++)
             {
                 validMoves.Add(piece.row + "," + j);
             }
@@ -341,28 +341,28 @@ namespace NeuralTaflGame
         /// <param name="row">The new row for the piece</param>
         /// <param name="col">The new column for the piece</param>
         /// <returns>Successfulness of move</returns>
-        public Boolean movePiece(Piece piece, int row, int col)
+        public Boolean MovePiece(Piece piece, int row, int col)
         {
-            if (0 > row || row >= nRows || 0 > col || col >= nCols)
+            if (0 > row || row >= NRows || 0 > col || col >= NCols)
             {
                 return false;
             }
             
-            // TODO: use existing getValidMoves to fix CheckPieceInvalidMove test case.
+            // TODO: use existing GetValidMoves to fix CheckPieceInvalidMove test case.
             // Should be some form of 'if (!validMoves.contains(row + "," + column) return false'
 
             // TODO: If it is not the player's turn, they should not be able to move a piece
 
             // Strange behavior: "Direct capture", a king can "capture" type 4 pieces by standing on them
             // For cool ideas in the future, just future proof in a "direct capture" flow
-            Piece existingPiece = getPiece(row, col);
-            if (piece == kingPiece && existingPiece != null && existingPiece.owner == -1)
+            Piece existingPiece = GetPiece(row, col);
+            if (piece == KingPiece && existingPiece != null && existingPiece.owner == -1)
             {
-                existingPiece = removePiece(existingPiece);
+                existingPiece = RemovePiece(existingPiece);
             }
             
             // quick validation, should never be true but does currently (valid moves are not defined)
-            if (pieceDict.Keys.Contains(String.Format("{0},{1}", row, col)))
+            if (PieceDict.Keys.Contains(String.Format("{0},{1}", row, col)))
                 return false;
             
             // Since I'm proposing the class/obj Piece, here's the implementation
@@ -371,12 +371,12 @@ namespace NeuralTaflGame
             
 
             // Remove the piece from the board in order to place it in the new spot
-            piece = removePiece(piece);
+            piece = RemovePiece(piece);
 
             piece.movePiece(row, col);
-            piece = addPiece(piece);
+            piece = AddPiece(piece);
 
-            playerTurn = (playerTurn == 1) ? 0 : 1;
+            PlayerTurn = (PlayerTurn == 1) ? 0 : 1;
             return true;
         }
 
@@ -386,14 +386,14 @@ namespace NeuralTaflGame
         /// <param name="row">The row of the piece we are looking for</param>
         /// <param name="col">The column of the piece we are looking for</param>
         /// <returns>Piece, or null if no such piece exists at that pos (safely handles oob)</returns>
-        public Piece getPiece(int row, int col)
+        public Piece GetPiece(int row, int col)
         {
             String key = String.Format("{0},{1}", row, col);
             
-            if (!pieceDict.Keys.Contains(key)) // No such key
+            if (!PieceDict.Keys.Contains(key)) // No such key
                 return null;
 
-            return pieceDict[key];
+            return PieceDict[key];
         }
 
         /// <summary>
@@ -401,11 +401,11 @@ namespace NeuralTaflGame
         /// </summary>
         /// <param name="owner">The player/owner of the pieces</param>
         /// <returns>The list of pieces owned by an owner</returns>
-        public List<Piece> getOwnerPieces(int owner)
+        public List<Piece> GetOwnerPieces(int owner)
         {
             List<Piece> ownerPieces = new List<Piece>();
 
-            foreach (Piece piece in pieceList)
+            foreach (Piece piece in PieceList)
             {
                 if (piece.owner == owner)
                 {
@@ -421,28 +421,28 @@ namespace NeuralTaflGame
         /// </summary>
         /// <param name="piece">The piece to be removed</param>
         /// <returns>The removed piece</returns>
-        public Piece removePiece(Piece piece)
+        public Piece RemovePiece(Piece piece)
         {
             int row = piece.row;
             int col = piece.column;
 
-            pieceList.Remove(piece);
-            pieceDict.Remove(row + "," + col);
+            PieceList.Remove(piece);
+            PieceDict.Remove(row + "," + col);
 
             // TODO: If king and HAS NOT MOVED (may need new bool? new 2dArray code for "unmoved king"? Consider "from position" board states)
             /*
             if (piece.isKing && ???)
             {
-                boardArray[row][col] = 5;
+                BoardArray[row][col] = 5;
             }
             */
-            boardArray[row][col] = 0;
+            BoardArray[row][col] = 0;
 
             // All four squares at the old position must have their peripherals updated
-            Piece northPiece = getPiece(row + 1, col);
-            Piece southPiece = getPiece(row - 1, col);
-            Piece westPiece = getPiece(row, col - 1);
-            Piece eastPiece = getPiece(row, col + 1);
+            Piece northPiece = GetPiece(row + 1, col);
+            Piece southPiece = GetPiece(row - 1, col);
+            Piece westPiece = GetPiece(row, col - 1);
+            Piece eastPiece = GetPiece(row, col + 1);
 
             // all old pieces will now have captured{OTHER} set to false
             // TODO: IF a throne is placed instead, these are set to true(?)
@@ -464,15 +464,15 @@ namespace NeuralTaflGame
         /// <param name="piece">The piece to be added</param>
         /// <param name="captureAllowed">Whether capturing is allowed. Set to false when initializing a board or taking back a move</param>
         /// <returns>The piece that was added</returns>
-        public Piece addPiece(Piece piece, Boolean captureAllowed = true)
+        public Piece AddPiece(Piece piece, Boolean captureAllowed = true)
         {
             int row = piece.row;
             int col = piece.column;
 
-            Piece northPiece = getPiece(row + 1, col);
-            Piece southPiece = getPiece(row - 1, col);
-            Piece westPiece = getPiece(row, col - 1);
-            Piece eastPiece = getPiece(row, col + 1);
+            Piece northPiece = GetPiece(row + 1, col);
+            Piece southPiece = GetPiece(row - 1, col);
+            Piece westPiece = GetPiece(row, col - 1);
+            Piece eastPiece = GetPiece(row, col + 1);
             
             // Maybe pieces should handle this? But they don't have peripheral vision. 
             // Considered a Linkedlist approach but realized this isn't 2001 or an interview question
@@ -485,7 +485,7 @@ namespace NeuralTaflGame
 
                 if (northPiece.checkCaptured(ignoreEW: true) && captureAllowed)
                 {
-                    removePiece(northPiece);
+                    RemovePiece(northPiece);
                     piece.capturedNorth = false;
                 }
             }
@@ -499,7 +499,7 @@ namespace NeuralTaflGame
 
                 if (southPiece.checkCaptured(ignoreEW: true) && captureAllowed)
                 {
-                    removePiece(southPiece);
+                    RemovePiece(southPiece);
                     piece.capturedSouth = false;
                 }
             }
@@ -511,7 +511,7 @@ namespace NeuralTaflGame
 
                 if (westPiece.checkCaptured(ignoreNS: true) && captureAllowed)
                 {
-                    removePiece(westPiece);
+                    RemovePiece(westPiece);
                     piece.capturedWest = false;
                 }
             }
@@ -523,22 +523,22 @@ namespace NeuralTaflGame
 
                 if (eastPiece.checkCaptured(ignoreNS: true) && captureAllowed)
                 {
-                    removePiece(eastPiece);
+                    RemovePiece(eastPiece);
                     piece.capturedEast = false;
                 }
             }
 
             // TODO: The hardest part, probably - check for shield wall captures
             // I'll get you into the right function to check, your job should implement the pseudocode
-            if ((piece.row == 0 || piece.row == 1 || piece.row == nRows - 1 || piece.row == nRows - 2) &&
-                (piece.column == 0 || piece.column == 1 || piece.column == nCols - 1 || piece.column == nCols - 2))
+            if ((piece.row == 0 || piece.row == 1 || piece.row == NRows - 1 || piece.row == NRows - 2) &&
+                (piece.column == 0 || piece.column == 1 || piece.column == NCols - 1 || piece.column == NCols - 2))
             {
-                checkShieldWallCapture();
+                CheckShieldWallCapture();
             }
 
-            pieceList.Add(piece);
-            pieceDict.Add(row + "," + col, piece);
-            boardArray[row][col] = getArrayCode(piece);
+            PieceList.Add(piece);
+            PieceDict.Add(row + "," + col, piece);
+            BoardArray[row][col] = GetArrayCode(piece);
 
             return piece;
         }
@@ -555,7 +555,7 @@ namespace NeuralTaflGame
         /// </summary>
         /// <param name="piece">The piece to be parsed</param>
         /// <returns>void</returns>
-        public int getArrayCode(Piece piece)
+        public int GetArrayCode(Piece piece)
         {
             if (piece == null)
                 return 0;
@@ -578,11 +578,11 @@ namespace NeuralTaflGame
         /// </summary>
         /// 
         /// <returns>void</returns>
-        public void printBoard()
+        public void PrintBoard()
         {
             Console.WriteLine("    A,B,C,D,E,F,G,H,I,J,K");
             int j = 0;
-            foreach (int[] boardRow in boardArray)
+            foreach (int[] boardRow in BoardArray)
             {
                 Console.Write(String.Format("{0}{1} [", j + 1, (j < 9) ? " " : ""));
 

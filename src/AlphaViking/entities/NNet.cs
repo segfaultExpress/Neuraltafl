@@ -77,10 +77,10 @@ namespace NeuralTaflAi
         /// <returns>The model that was generated</returns>
         public Model createKerasNet(Board board)
         {
-            int boardSize = board.nCols * board.nRows;
+            int boardSize = board.NCols * board.NRows;
 
             var iLayer = tf.keras.Input(shape: new List<int>() {boardSize});
-            var x_image = new keras.layers.Reshape(target_shape: new List<int>() {board.nRows, board.nCols, 1}).__call__(iLayer);
+            var x_image = new keras.layers.Reshape(target_shape: new List<int>() {board.NRows, board.NCols, 1}).__call__(iLayer);
 
             // 2D Convolutional Layers - A toolbox for the neural network to utilize in order to learn
             var conv1 = new keras.layers.Conv2D(filters: Constants.NN_CHANNELS, kernel_size: 3, strides: (1, 1), activation: "relu", padding: "same", use_bias: false).__call__(x_image);
